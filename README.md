@@ -1,27 +1,16 @@
 # Requirements Scanner
 
-Stop creating countless single-use Python virtual environments. Use this tool to identify your most common package dependencies and create a few reusable environments instead.
+A tool for analyzing Python package dependencies across multiple repositories to identify common packages and inform environment management decisions.
 
-## The Problem
+## Overview
 
-Many Python developers end up with dozens of project-specific virtual environments, each containing largely the same packages. This leads to:
+Requirements Scanner recursively analyzes `requirements.txt` files across your repositories and generates frequency reports showing which packages appear most often. This data can inform decisions about creating shared or reusable Python environments.
 
-- Wasted disk space with duplicate packages across environments
-- Slower environment creation and setup times
-- Difficulty maintaining consistent package versions across projects
-- Environment sprawl that's hard to manage
+## Features
 
-## The Solution
-
-Requirements Scanner recursively analyzes all `requirements.txt` files across your repositories, identifies patterns in your package usage, and shows you which packages you use most frequently. With this information, you can create a few well-designed reusable environments that serve multiple projects instead of creating bespoke environments for each one.
-
-## Why This Matters
-
-When you discover that 15 of your 20 projects all use `requests`, `numpy`, and `pytest`, you realize you don't need 15 separate environments with these same packages. You need one solid base environment that all these projects can share. The scanner reveals these patterns by:
-
-- **Frequency Analysis**: Shows which packages appear in most of your projects
-- **Version Tracking**: Identifies if you're consistently using similar versions (or if there's version fragmentation)
-- **Data-Driven Decisions**: Takes the guesswork out of environment design
+- **Frequency Analysis**: Counts package occurrences across all requirements files
+- **Version Tracking**: Records version specifications for each package
+- **Pattern Identification**: Identifies commonly used packages across projects
 
 ## How It Works
 
@@ -30,37 +19,30 @@ When you discover that 15 of your 20 projects all use `requests`, `numpy`, and `
 3. **Ranks**: Shows you which packages appear most frequently across your projects
 4. **Reports**: Generates detailed reports to help you design reusable environments
 
-## Key Features
+## Reports Generated
 
-- Recursive scanning of your entire repository directory tree
-- Smart package name normalization (handles case, separators like `-` vs `_`)
-- Tracks both package names and version specifications
-- Generates four comprehensive reports:
-  - **Unique Packages**: Alphabetically sorted, deduplicated list of all packages
-  - **Packages by Frequency**: Shows which packages you use most often
-  - **Unique Packages with Versions**: Every package+version combination found
-  - **Packages by Frequency with Versions**: Most common version specifications
-- **🤖 AI-Powered Environment Recommendations** (optional but recommended):
-  - Analyzes your package frequency patterns using Claude (Anthropic) or GPT-4 (OpenAI)
-  - Suggests 2-5 discrete, reusable environments based on your actual usage
+- **Unique Packages**: Alphabetically sorted, deduplicated list of all packages
+- **Packages by Frequency**: Package counts with all versions found
+- **Unique Packages with Versions**: Every package+version combination found
+- **Packages by Frequency with Versions**: Most common version specifications
+- **AI-Powered Environment Recommendations** (optional):
+  - Analyzes package frequency patterns using Claude (Anthropic) or GPT-4 (OpenAI)
+  - Suggests 2-5 reusable environments based on package usage patterns
   - Provides environment names, package lists, and descriptions
-  - Saves you hours of manual analysis and decision-making
 
 ## Use Case Example
 
-Let's say you run the scanner and discover:
+If the scanner finds:
 
-- `requests`, `numpy`, and `pandas` appear in 80% of your projects
-- `flask` and `sqlalchemy` appear in 50% of your web projects
+- `requests`, `numpy`, and `pandas` appear in 80% of projects
+- `flask` and `sqlalchemy` appear in 50% of web projects
 - `pytest` and `black` appear in 90% of all projects
 
-Instead of creating 20 separate environments, you could create:
+This data could inform creation of shared environments:
 
 1. **base-env**: requests, numpy, pandas, pytest, black (for general Python work)
 2. **web-env**: Inherits from base-env, adds flask, sqlalchemy (for web projects)
 3. **ml-env**: Inherits from base-env, adds scikit-learn, tensorflow (for ML projects)
-
-This reduces 20 environments down to 3 reusable ones that serve most of your needs.
 
 ## Installation
 
@@ -97,15 +79,15 @@ Available environment variables:
 
 - `REPO_BASE`: Base directory where your code repositories are stored
 - `VENV_BASE`: Preferred location for storing virtual environments (for reference)
-- `ANTHROPIC_API_KEY`: API key for Claude AI analysis (recommended)
-- `OPENAI_API_KEY`: API key for GPT-4 AI analysis (alternative)
+- `ANTHROPIC_API_KEY`: API key for Claude AI analysis
+- `OPENAI_API_KEY`: API key for GPT-4 AI analysis
 
 Example `.env`:
 ```bash
 REPO_BASE=/home/username/repos
 VENV_BASE=/home/username/.venv
 
-# AI Analysis (optional but recommended)
+# AI Analysis (optional)
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
 # OR
 OPENAI_API_KEY=your_openai_api_key_here
@@ -115,15 +97,13 @@ If `REPO_BASE` is set in `.env`, you can run the tool without providing a path a
 
 ### Getting API Keys for AI Analysis
 
-**Anthropic (Claude) - Recommended:**
+**Anthropic (Claude):**
 - Sign up at https://console.anthropic.com/
 - Create an API key in your account settings
-- Claude provides excellent analysis of package patterns
 
-**OpenAI (GPT-4) - Alternative:**
+**OpenAI (GPT-4):**
 - Sign up at https://platform.openai.com/
 - Create an API key at https://platform.openai.com/api-keys
-- GPT-4 offers strong reasoning about environment design
 
 ## Usage
 
@@ -149,7 +129,7 @@ reqs-scan
 
 ### AI-Powered Analysis
 
-The tool can analyze your package patterns using AI to suggest optimal environments:
+The tool can analyze your package patterns using AI to suggest environment configurations:
 
 ```bash
 # Run with AI analysis (interactive prompt if API key is set)
@@ -165,12 +145,12 @@ reqs-scan ~/repos --ai-analysis --ai-provider openai
 reqs-scan ~/repos --skip-ai
 ```
 
-**AI analysis will:**
-1. Read your frequency reports
-2. Identify natural package clusters
-3. Suggest 2-5 reusable environments with names and descriptions
-4. Save recommendations to `analysis/ai_recommendations.txt`
-5. Display recommendations in the terminal
+**AI analysis process:**
+1. Reads frequency reports
+2. Identifies package clusters
+3. Suggests 2-5 reusable environments with names and descriptions
+4. Saves recommendations to `analysis/ai_recommendations.txt`
+5. Displays recommendations in terminal
 
 ### Advanced Options
 
@@ -198,7 +178,7 @@ requirements-scanner ~/repos/github \
 - `--frequency-output`: Filename for frequency report (default: `packages_by_frequency.txt`)
 - `--ai-analysis`: Enable AI-powered environment recommendations (prompts if not set)
 - `--ai-provider`: AI provider to use: `anthropic` (default) or `openai`
-- `--skip-ai`: Skip AI analysis completely (not recommended)
+- `--skip-ai`: Skip AI analysis completely
 
 ## Output Format
 
@@ -319,7 +299,7 @@ environments:
 
 **Suggested Python version:** 3.11
 
-This reduces your 20+ project-specific environments to just 3 reusable ones!
+This example shows how 3 environments could serve 20+ projects.
 ```
 
 ## Technical Details
@@ -350,25 +330,22 @@ source .venv/bin/activate
 # Step 2: Scan your repositories
 reqs-scan ~/repos/github  # Or just 'reqs-scan' if REPO_BASE is configured
 
-# Step 3: Review the frequency report to identify common packages
+# Step 3: Review the frequency report
 cat analysis/packages_by_frequency.txt
 
-# Step 4: Design your reusable environments based on the data
-# Look for natural clusters:
-# - Packages used in 70%+ of projects → base environment
-# - Packages used in specific project types → specialized environments
+# Step 4: Analyze package usage patterns
+# - Packages used in 70%+ of projects
+# - Packages used in specific project types
 
-# Step 5: Create your reusable environments
-# Example: Create a base environment with your most common packages
+# Step 5: Create environments based on the data
+# Example: Create a base environment with common packages
 conda create -n python-base python=3.11 requests numpy pandas pytest black
 
-# Step 6: Use these environments across multiple projects
-# Instead of creating new environments, activate an existing one:
+# Step 6: Use shared environments
 conda activate python-base
 
-# Step 7: Review version-aware reports for consistency
+# Step 7: Review version-specific reports
 cat analysis/packages_by_frequency_with_versions.txt
-# This helps you identify if you need specific version pinning
 ```
 
 ## License
